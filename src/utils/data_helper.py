@@ -96,3 +96,27 @@ def create_train_set(epochs, tmin=1.0, tmax=2.0):
     y = epochs.events[:, -1] - 2
 
     return X, y
+
+def seperate_brain_waves(epochs):
+    """
+    Separate EEG epochs into different brain wave frequency bands.
+
+    Parameters
+    ----------
+    epochs : mne.Epochs
+        The input EEG epochs to be filtered into frequency bands.
+
+    Returns
+    -------
+    brain_wave_epochs : dict
+        Dictionary where keys are brain wave names ('Delta', 'Theta', 'Alpha', 'Beta')
+        and values are filtered mne.Epochs objects for each frequency band.
+    """
+    brain_wave_epochs = {}
+    brain_wave_freqs = [("Delta", 0, 4), ("Theta", 4, 8), ("Alpha", 8, 12), ("Beta", 12, 40)]
+
+    for name, fmin, fmax in brain_wave_freqs:
+        filtered_epochs = epochs.copy().filter(l_freq=fmin, h_freq=fmax, verbose='error')
+        brain_wave_epochs[name] = filtered_epochs
+
+    return brain_wave_epochs
